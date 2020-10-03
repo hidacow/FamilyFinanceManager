@@ -18,11 +18,11 @@
 using namespace std;
 //以下为类型、常量定义
 //所有常量请大写加下划线！
-#define MAIN_MENU_COUNT 13	//菜单项数
+#define MAIN_MENU_COUNT 13	//主菜单项数
 
 
 //以下为全局变量定义
-
+bool isinit;	//程序是否已经初始化标识符
 
 
 //以下声明函数
@@ -33,4 +33,9 @@ void initprogram();
 void printmenu();
 void gotomenu(int menuno);
 void exitprogram();
+
+void addincome();
+void editincome();
+void delincome();
+
 

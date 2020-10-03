@@ -11,8 +11,12 @@ using namespace std;
 
 int main()
 {
+    
+    if (isinit) {
+        initprogram();  //初始化程序
+        isinit = true;
+    }
     int selection;
-    initprogram();  //初始化程序
     while (true)
     {
         system("cls");  //清屏
@@ -31,13 +35,13 @@ int main()
         }
         else
         {
-            cout << "你选择了" << selection <<endl;
+            //cout << "你选择了" << selection <<endl;
             gotomenu(selection);    //跳转菜单
             break;
         }
     }
     cout << "Hello World!\n";
-    exitprogram();
+    return 0;
 }
 
 void initprogram() {	//初始化程序
@@ -98,8 +102,18 @@ void gotomenu(int menuno) {	//跳转菜单
 }
 
 void exitprogram() {	//退出程序
-    //添加确认退出提示、文件保存等函数
-    exit(0);	//退出并返回0
+    
+    string confirmation;
+    cout << "你真的要退出吗？(输入y以退出)";
+    cin >> confirmation;
+    if (confirmation == "y"|| confirmation == "Y") {
+        //添加确认退出提示、文件保存等函数
+        exit(0);//退出并返回0
+    }
+    else {
+        cin.clear();
+        main();
+    }
 }
 
 
