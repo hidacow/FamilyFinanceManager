@@ -29,13 +29,29 @@ bool isinit;	//程序是否已经初始化标识符
 //!!请不要在此定义函数以免造成麻烦,但是要在这里声明！
 
 
-void initprogram();
-void printmenu();
-void gotomenu(int menuno);
-void exitprogram();
+void initprogram();	//初始化程序
+void printmenu();	//打印菜单
+void selectmenu();	//选择菜单
+void gotomenu(int menuno);	//跳转菜单
+void exitprogram();	//退出程序
 
-void addincome();
-void editincome();
-void delincome();
+void addincome();	//增加收入
+void editincome();	//编辑收入
+void delincome();	//删除收入
+
+void addexpense();	//增加支出
+void editexpense();	//编辑支出
+void delexpense();	//删除支出
+
+void sortincome();	//排序收入
+void sortexpense();	//排序支出
+
+void queryincome();	//查询收入
+void queryexpense();	//查询支出
+
+void exporttable();	//导出表格
+
+void editpassword();	//编辑操作密码
+bool validatepassword(string pwd);	//验证操作密码
 
 

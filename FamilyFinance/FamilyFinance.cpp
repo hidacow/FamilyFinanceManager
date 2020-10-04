@@ -13,38 +13,15 @@ int main()
 {
     
     if (isinit) {
-        initprogram();  //初始化程序
+        initprogram();  
         isinit = true;
     }
-    int selection;
-    while (true)
-    {
-        system("cls");  //清屏
-        printmenu();    //打印主菜单
-        cout << "请选择菜单 [1-" << MAIN_MENU_COUNT << "]:";
-        selection = 0;
-        cin >> selection;
-        if (cin.fail() || selection<1 || selection > MAIN_MENU_COUNT)
-        {
-            cout << "输入错误！"<<endl;
-            system("pause");    //让用户按任意键继续
-            cin.clear();
-            cin.ignore(1000,'\n');  //防止cin一直为错误状态
-            
-            continue;
-        }
-        else
-        {
-            //cout << "你选择了" << selection <<endl;
-            gotomenu(selection);    //跳转菜单
-            break;
-        }
-    }
-    cout << "Hello World!\n";
+    selectmenu();
+    
     return 0;
 }
 
-void initprogram() {	//初始化程序
+void initprogram() {	
     //添加读取文件，配置等函数
 }
 
@@ -75,24 +52,72 @@ void printmenu() {	//打印菜单
         << "|======================================================|\n";
 }
 
-void gotomenu(int menuno) {	//跳转菜单
+void selectmenu() {
+    int selection;
+    while (true)
+    {
+        system("cls");  //清屏
+        printmenu();    //打印主菜单
+        cout << "请选择菜单 [1-" << MAIN_MENU_COUNT << "]:";
+        selection = 0;
+        cin >> selection;
+        if (cin.fail() || selection<1 || selection > MAIN_MENU_COUNT)
+        {
+            cout << "输入错误！" << endl;
+            system("pause");    //让用户按任意键继续
+            cin.clear();
+            cin.ignore(1000, '\n');  //防止cin一直为错误状态
+
+            continue;
+        }
+        else
+        {
+            //cout << "你选择了" << selection <<endl;
+            gotomenu(selection);    //跳转菜单
+            break;
+        }
+    }
+}
+
+void gotomenu(int menuno) {	
     switch (menuno)
     {
     case 1:
+        addincome();
         break;
     case 2:
+        editincome();
         break;
     case 3:
+        delincome();
         break;
     case 4:
+        queryincome();
         break;
     case 5:
+        addexpense();
         break;
     case 6:
+        editexpense();
         break;
     case 7:
+        delexpense();
         break;
-
+    case 8:
+        queryexpense();
+        break;
+    case 9:
+        sortincome();
+        break;
+    case 10:
+        sortexpense();
+        break;
+    case 11:
+        delexpense();
+        break;
+    case 12:
+        editpassword();
+        break;
     case 13:
         exitprogram();
         break;
@@ -101,7 +126,7 @@ void gotomenu(int menuno) {	//跳转菜单
     }
 }
 
-void exitprogram() {	//退出程序
+void exitprogram() {
     
     string confirmation;
     cout << "你真的要退出吗？(输入y以退出)";
@@ -112,11 +137,59 @@ void exitprogram() {	//退出程序
     }
     else {
         cin.clear();
-        main();
+        selectmenu();
     }
 }
 
 
+
+void addincome() {
+
+}
+void editincome() {
+
+}
+void delincome() {
+
+}
+
+void addexpense() {
+
+}
+void editexpense() {
+    
+}
+void delexpense() {
+
+}
+
+void sortincome() {
+
+}
+
+void sortexpense() {
+
+}
+
+void queryincome() {
+
+}
+
+void queryexpense() {
+
+}
+
+void exporttable() {
+
+}
+
+void editpassword() {
+
+}
+
+bool validatepassword(string pwd) {
+
+}
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
 // 调试程序: F5 或调试 >“开始调试”菜单
 
