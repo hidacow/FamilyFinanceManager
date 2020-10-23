@@ -12,14 +12,39 @@
 #include<cmath>
 #include<iomanip>
 #include<cstdio>
-#include<cstring>
+#include<string>
 #include<ctime>
 #include<cctype>
+#include<vector>
+//#include<cstring>
+
 using namespace std;
+
 //以下为类型、常量定义
 //所有常量请大写加下划线！
 #define MAIN_MENU_COUNT 13	//主菜单项数
+#define DATA_FILE "fs.dat"
 
+//定义结构体
+typedef struct _fi_info //收支项
+{
+    int year;
+    int month;
+    int type;       //1为收入，-1为支出
+    string name;    //家庭成员姓名，属于TA的收入或由TA支出
+    float money;    //收入或支出的金额
+    string detail;  //备注信息
+}fi_info;
+
+struct FinanceItem
+{
+    int year=0;
+    int month=0;
+    int type=1;       //1为收入，-1为支出
+    string name="";    //家庭成员姓名，属于TA的收入或由TA支出
+    float money=0;    //收入或支出的金额
+    string detail="";  //备注信息
+};
 
 //以下为全局变量定义
 bool isinit;	//程序是否已经初始化标识符
@@ -35,7 +60,11 @@ void selectmenu();	//选择菜单
 void gotomenu(int menuno);	//跳转菜单
 void exitprogram();	//退出程序
 
+void clearFianceItem(FinanceItem& item); //清空收支项
+
 void addincome();	//增加收入
+void inputinfo(FinanceItem& financeinfo);   //输入信息
+
 void editincome();	//编辑收入
 void delincome();	//删除收入
 

@@ -52,6 +52,11 @@ void printmenu() {	//打印菜单
         << "|======================================================|\n";
 }
 
+void printtitle(string title) {
+    cout << "=================== 家庭财务管理系统 ===================\n"
+        << "----[" << title << "]----" << endl;
+}
+
 void selectmenu() {
     int selection;
     while (true)
@@ -66,13 +71,13 @@ void selectmenu() {
             cout << "输入错误！" << endl;
             system("pause");    //让用户按任意键继续
             cin.clear();
-            cin.ignore(1000, '\n');  //防止cin一直为错误状态
+            cin.ignore(1000, '\n');
+              //防止cin一直为错误状态
 
             continue;
         }
         else
         {
-            //cout << "你选择了" << selection <<endl;
             gotomenu(selection);    //跳转菜单
             break;
         }
@@ -132,7 +137,7 @@ void exitprogram() {
     cout << "你真的要退出吗？(输入y以退出)";
     cin >> confirmation;
     if (confirmation == "y"|| confirmation == "Y") {
-        //添加确认退出提示、文件保存等函数
+        //添加文件保存等函数
         exit(0);//退出并返回0
     }
     else {
@@ -141,11 +146,105 @@ void exitprogram() {
     }
 }
 
-
+void clearFianceItem(FinanceItem& item) {
+    item.detail = "";
+    item.money = 0;
+    item.month = 0;
+    item.year = 0;
+    item.name = "";
+}
 
 void addincome() {
+    FinanceItem fiinfo;
+    string confirmation = "";
+    do
+    {
+        clearFianceItem(fiinfo);    //Initialize it
+        fiinfo.type = 1;    //此处是收入
+        system("cls");  //清屏
+        printtitle("添加收入");
+        inputinfo(fiinfo);
+        cout << endl << "请确认:" << endl << "----------------" << endl;
+        cout << "姓名:" << fiinfo.name << endl
+            << "时间:" << fiinfo.year << "/" << fiinfo.month << endl
+            << "支出:" << fixed << setprecision(2) << fiinfo.money << "元" << endl
+            << "备注:" << fiinfo.detail << endl << "----------------" << endl;
+        cout << "确定添加？(输入y继续,输入c取消,输入其它重输)";
+        cin >> confirmation;
+        if (confirmation == "c") {
+            selectmenu();
+            return;
+        }
+    } while (confirmation != "y" && confirmation != "Y");
+    
+    cout << "添加成功！" << endl;
+    system("pause");
+    selectmenu();
+    //添加保存到文件
+
 
 }
+
+void inputinfo(FinanceItem& financeinfo) {
+    cout << "请输入家庭成员姓名:";
+    while (1) {
+        while (getline(cin, financeinfo.name))
+        {
+            if (financeinfo.name != "") {
+                cin.clear(); break;
+            }
+        }
+        if (cin.good()) break;
+        else {
+            cin.clear();
+            cin.ignore(1000, '\n');
+        }
+    }
+    cout << endl << "请输入年份(yyyy):";
+    while (1) {
+        cin >> financeinfo.year;
+        if (cin.good()&& financeinfo.year > 1800) break;
+        else {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "输入错误!请重新输入:";
+        }
+    }
+    cin.clear();
+    cin.ignore(1000, '\n');
+    cout<<endl<< "请输入月份(m):";
+    while (1) {
+        cin >> financeinfo.month;
+        if (cin.good()&& financeinfo.month <= 12 && financeinfo.month >= 1) break;
+        else {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "输入错误!请重新输入:";
+        }
+    }
+    cin.clear();
+    cin.ignore(1000, '\n');
+    cout << endl << "请输入金额:";
+    while (1) {
+        cin >> financeinfo.money;
+        if (cin.good()&& financeinfo.money > 0) break;
+        else {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "输入错误!请重新输入:";
+        }
+    }
+    cin.clear();
+    cin.ignore(1000, '\n');
+    cout << endl << "请输入备注:";
+    while (getline(cin,financeinfo.detail))
+    {
+        if (financeinfo.detail != "") {
+            cin.clear(); break;
+        }
+    }
+}
+
 void editincome() {
 
 }
@@ -188,7 +287,7 @@ void editpassword() {
 }
 
 bool validatepassword(string pwd) {
-
+    return true;
 }
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
 // 调试程序: F5 或调试 >“开始调试”菜单
