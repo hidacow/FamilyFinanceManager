@@ -12,11 +12,11 @@
 int main()
 {
     
-    if (!isinit) {
-        initprogram();  
-        isinit = true;
+    if (!isinit) {  //如果程序尚未初始化
+        initprogram();  //初始化程序
+        isinit = true;  //标记已初始化
     }
-    selectmenu();
+    selectmenu();   //选择菜单
     
     return 0;
 }
@@ -262,7 +262,7 @@ unsigned char FromHex(unsigned char x)
     return y;
 }
 
-string UrlEncode(const string& str)
+string UrlEncode(const string& str) //对字符串进行URL编码
 {
     std::string strTemp = "";
     size_t length = str.length();
@@ -286,7 +286,7 @@ string UrlEncode(const string& str)
     return strTemp;
 }
 
-string UrlDecode(const string& str)
+string UrlDecode(const string& str) //对字符串进行URL解码
 {
     std::string strTemp = "";
     size_t length = str.length();
@@ -307,6 +307,7 @@ string UrlDecode(const string& str)
 
 void savetofile() {
     ofstream output(DATA_FILE,ios_base::out);
+    if (FinanceBook.size() == 0) { output.close(); return; }
     output << FinanceBook.size();
     for (int i = 0; i < FinanceBook.size(); i++) {
         output <<" "<< FinanceBook[i].type <<" " << UrlEncode(FinanceBook[i].name) << " " << FinanceBook[i].year << " " << FinanceBook[i].month << " " << FinanceBook[i].money << " " << UrlEncode(FinanceBook[i].detail);
@@ -317,8 +318,9 @@ void savetofile() {
 void getfromfile() {
     ifstream input(DATA_FILE, ios_base::in);
     FinanceBook.clear();
-    int cnt;
+    int cnt=0;
     input >> cnt;
+    if (cnt == 0) { input.close(); return; }
     FinanceItem a;
     for (int i = 0; i < cnt; i++) {
         input >> a.type >> a.name >> a.year >> a.month >> a.money >> a.detail;
@@ -326,6 +328,11 @@ void getfromfile() {
         a.detail = UrlDecode(a.detail);
         FinanceBook.push_back(a);
     }
+    input.close();
+}
+
+bool cmpbyname(FinanceItem a, FinanceItem b) {
+    
 }
 
 void editincome() {

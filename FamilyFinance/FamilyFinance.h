@@ -18,7 +18,8 @@
 #include<vector>
 #include<fstream>
 #include<assert.h>
-//#include<cstring>
+#include<algorithm>
+
 
 using namespace std;
 
@@ -64,10 +65,13 @@ void exitprogram();	//退出程序
 
 void clearFinanceItem(FinanceItem& item); //清空收支项
 
+bool cmpbyname(FinanceItem a,FinanceItem b);
+
+
 void addincome();	//增加收入
-void inputinfo(FinanceItem& financeinfo);   //输入信息
-void savetofile();
-void getfromfile();
+void inputinfo(FinanceItem& financeinfo);  //用户交互输入收支项目函数
+void savetofile();  //写入到文件
+void getfromfile(); //从文件读取
 void editincome();	//编辑收入
 void delincome();	//删除收入
 
