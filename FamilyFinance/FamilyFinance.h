@@ -62,7 +62,7 @@ void selectmenu();	//选择菜单
 void gotomenu(int menuno);	//跳转菜单
 void exitprogram();	//退出程序
 
-void clearFianceItem(FinanceItem& item); //清空收支项
+void clearFinanceItem(FinanceItem& item); //清空收支项
 
 void addincome();	//增加收入
 void inputinfo(FinanceItem& financeinfo);   //输入信息

@@ -147,7 +147,7 @@ void exitprogram() {
     }
 }
 
-void clearFianceItem(FinanceItem& item) {
+void clearFinanceItem(FinanceItem& item) {
     item.detail = "";
     item.money = 0;
     item.month = 0;
@@ -160,7 +160,7 @@ void addincome() {
     string confirmation = "";
     do
     {
-        clearFianceItem(fiinfo);    //Initialize it
+        clearFinanceItem(fiinfo);    //Initialize it
         fiinfo.type = 1;    //此处是收入
         system("cls");  //清屏
         printtitle("添加收入");
