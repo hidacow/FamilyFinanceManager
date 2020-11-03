@@ -7,12 +7,12 @@
 */
 
 #include "FamilyFinance.h"  //调用头文件
-using namespace std;
+
 
 int main()
 {
     
-    if (isinit) {
+    if (!isinit) {
         initprogram();  
         isinit = true;
     }
@@ -22,7 +22,7 @@ int main()
 }
 
 void initprogram() {	
-    //添加读取文件，配置等函数
+    getfromfile();
 }
 
 void printmenu() {	//打印菜单
@@ -138,6 +138,7 @@ void exitprogram() {
     cin >> confirmation;
     if (confirmation == "y"|| confirmation == "Y") {
         //添加文件保存等函数
+        savetofile();
         exit(0);//退出并返回0
     }
     else {
@@ -176,11 +177,12 @@ void addincome() {
             return;
         }
     } while (confirmation != "y" && confirmation != "Y");
-    
+    FinanceBook.push_back(fiinfo);
+    savetofile();
     cout << "添加成功！" << endl;
     system("pause");
     selectmenu();
-    //添加保存到文件
+    
 
 
 }
@@ -239,9 +241,90 @@ void inputinfo(FinanceItem& financeinfo) {
     cout << endl << "请输入备注:";
     while (getline(cin,financeinfo.detail))
     {
-        if (financeinfo.detail != "") {
+        //if (financeinfo.detail != "") {
             cin.clear(); break;
+        //}
+    }
+}
+
+unsigned char ToHex(unsigned char x)
+{
+    return  x > 9 ? x + 55 : x + 48;
+}
+
+unsigned char FromHex(unsigned char x)
+{
+    unsigned char y;
+    if (x >= 'A' && x <= 'Z') y = x - 'A' + 10;
+    else if (x >= 'a' && x <= 'z') y = x - 'a' + 10;
+    else if (x >= '0' && x <= '9') y = x - '0';
+    else assert(0);
+    return y;
+}
+
+string UrlEncode(const string& str)
+{
+    std::string strTemp = "";
+    size_t length = str.length();
+    for (size_t i = 0; i < length; i++)
+    {
+        if (isalnum((unsigned char)str[i]) ||
+            (str[i] == '-') ||
+            (str[i] == '_') ||
+            (str[i] == '.') ||
+            (str[i] == '~'))
+            strTemp += str[i];
+        else if (str[i] == ' ')
+            strTemp += "+";
+        else
+        {
+            strTemp += '%';
+            strTemp += ToHex((unsigned char)str[i] >> 4);
+            strTemp += ToHex((unsigned char)str[i] % 16);
         }
+    }
+    return strTemp;
+}
+
+string UrlDecode(const string& str)
+{
+    std::string strTemp = "";
+    size_t length = str.length();
+    for (size_t i = 0; i < length; i++)
+    {
+        if (str[i] == '+') strTemp += ' ';
+        else if (str[i] == '%')
+        {
+            assert(i + 2 < length);
+            unsigned char high = FromHex((unsigned char)str[++i]);
+            unsigned char low = FromHex((unsigned char)str[++i]);
+            strTemp += high * 16 + low;
+        }
+        else strTemp += str[i];
+    }
+    return strTemp;
+}
+
+void savetofile() {
+    ofstream output(DATA_FILE,ios_base::out);
+    output << FinanceBook.size();
+    for (int i = 0; i < FinanceBook.size(); i++) {
+        output <<" "<< FinanceBook[i].type <<" " << UrlEncode(FinanceBook[i].name) << " " << FinanceBook[i].year << " " << FinanceBook[i].month << " " << FinanceBook[i].money << " " << UrlEncode(FinanceBook[i].detail);
+    }
+    output.close();
+}
+
+void getfromfile() {
+    ifstream input(DATA_FILE, ios_base::in);
+    FinanceBook.clear();
+    int cnt;
+    input >> cnt;
+    FinanceItem a;
+    for (int i = 0; i < cnt; i++) {
+        input >> a.type >> a.name >> a.year >> a.month >> a.money >> a.detail;
+        a.name = UrlDecode(a.name);
+        a.detail = UrlDecode(a.detail);
+        FinanceBook.push_back(a);
     }
 }
 

@@ -16,6 +16,8 @@
 #include<ctime>
 #include<cctype>
 #include<vector>
+#include<fstream>
+#include<assert.h>
 //#include<cstring>
 
 using namespace std;
@@ -47,8 +49,8 @@ struct FinanceItem
 };
 
 //以下为全局变量定义
-bool isinit;	//程序是否已经初始化标识符
-
+bool isinit=false;	//程序是否已经初始化标识符
+vector<FinanceItem> FinanceBook;
 
 //以下声明函数
 //!!请不要在此定义函数以免造成麻烦,但是要在这里声明！
@@ -64,7 +66,8 @@ void clearFianceItem(FinanceItem& item); //清空收支项
 
 void addincome();	//增加收入
 void inputinfo(FinanceItem& financeinfo);   //输入信息
-
+void savetofile();
+void getfromfile();
 void editincome();	//编辑收入
 void delincome();	//删除收入
 
@@ -82,5 +85,3 @@ void exporttable();	//导出表格
 
 void editpassword();	//编辑操作密码
 bool validatepassword(string pwd);	//验证操作密码
-
-
