@@ -26,7 +26,7 @@ using namespace std;
 //以下为类型、常量定义
 //所有常量请大写加下划线！
 #define MAIN_MENU_COUNT 13	//主菜单项数
-#define DATA_FILE "fs.dat"
+#define DATA_FILE "fs.dat"  //数据库文件
 
 //定义结构体
 typedef struct _fi_info //收支项
@@ -52,6 +52,9 @@ struct FinanceItem
 //以下为全局变量定义
 bool isinit=false;	//程序是否已经初始化标识符
 vector<FinanceItem> FinanceBook;
+bool issortincome=true;
+bool issortrecent=true;
+
 
 //以下声明函数
 //!!请不要在此定义函数以免造成麻烦,但是要在这里声明！
@@ -65,11 +68,12 @@ void exitprogram();	//退出程序
 
 void clearFinanceItem(FinanceItem& item); //清空收支项
 
-bool cmpbyname(FinanceItem a,FinanceItem b);
+bool cmp(FinanceItem a, FinanceItem b);
 
 
 void addincome();	//增加收入
 void inputinfo(FinanceItem& financeinfo);  //用户交互输入收支项目函数
+void inputquerycondition(FinanceItem& financeinfo);
 void savetofile();  //写入到文件
 void getfromfile(); //从文件读取
 void editincome();	//编辑收入
