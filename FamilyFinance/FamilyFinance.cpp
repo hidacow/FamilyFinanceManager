@@ -187,17 +187,18 @@ void addincome() {
 void inputinfo(FinanceItem& financeinfo) {
     cout << "请输入家庭成员姓名:";
     while (1) {
-        while (getline(cin, financeinfo.name))
-        {
-            if (financeinfo.name != "") {
-                cin.clear(); break;
-            }
+        getline(cin, financeinfo.name);
+
+        if (isNameLegal(financeinfo.name)) {
+            cin.clear();
+            break;
         }
-        if (cin.good()) break;
-        else {
+        else if (financeinfo.name != "") {
             cin.clear();
             cin.ignore(1000, '\n');
+            cout << "姓名不合法!请重新输入:";
         }
+
     }
     cout << endl << "请输入年份(yyyy):";
     while (1) {
@@ -336,21 +337,41 @@ void getfromfile() {
 
 bool cmp(FinanceItem a, FinanceItem b) {
     
-        if (a.type == b.type) {
-            if (a.year == b.year) {
-                if (a.month == b.month) {
-                    if (a.name == b.name) {
+    if (a.type == b.type) { //先判断收支类型
+        if (!issortnamefirst)   //判断是否姓名优先排序
+        {
+            if (a.year == b.year) { //判断年份
+               if (a.month == b.month) { //判断月份
+                    if (a.name == b.name) { //判断姓名
                         if (a.money == b.money) {
-                            return a.detail < b.detail;
-                        }else return a.money > b.money;
-                    }else return a.name < b.name;
-                }else if (issortrecent)return a.month > b.month;
+                            return a.detail < b.detail; //按备注的字母序排序
+                        }else return a.money > b.money; //金额大的在前
+                    }else return a.name < b.name;   //按名字字母序排序
+                }else if (issortrecent)return a.month > b.month;    //最近的月份在前
                 else return a.month < b.month;
-            }else if(issortrecent)return a.year > b.year;
+            }else if(issortrecent)return a.year > b.year;   //最近的年份在前
             else return a.year < b.year;
         }
-        else if (issortincome) return a.type > b.type;
-        else return a.type < b.type;
+        else {
+            if (a.name == b.name) {
+                if (a.year == b.year) {
+                    if (a.month == b.month) {
+                        if (a.money == b.money) {
+                            return a.detail < b.detail;
+                        }
+                        else return a.money > b.money;
+                    }
+                    else if (issortrecent)return a.month > b.month;
+                    else return a.month < b.month;
+                }
+                else if (issortrecent)return a.year > b.year;
+                else return a.year < b.year;
+            }else return a.name < b.name;
+        }
+        
+    }
+    else if (issortincome) return a.type > b.type;  //收入在前
+    else return a.type < b.type;    //支出在后
     
 }
 
@@ -404,72 +425,95 @@ void sortexpense() {
 
 }
 
+
+
+
 void queryincome() {
     FinanceItem targetinfo;
     string confirmation = "";
     
-        clearFinanceItem(targetinfo);    //Initialize it
-        targetinfo.type = 1;    //此处是收入
-        system("cls");  //清屏
-        printtitle("查询收入");
-        inputquerycondition(targetinfo);
-        issortincome = true;issortrecent = true;
-        sort(FinanceBook.begin(), FinanceBook.end(), cmp);
-        vector<FinanceItem>queryresult;
-        bool flag=false;
-        double sumincome=0;
-        for (int i = 0; i < FinanceBook.size(); ++i) {
-            if (FinanceBook[i].type != targetinfo.type)break;
-            if (FinanceBook[i].year == targetinfo.year) {
-                if (FinanceBook[i].month == targetinfo.month) {
-                    if (FinanceBook[i].name == targetinfo.name) {
-                        queryresult.push_back(FinanceBook[i]);
-                        sumincome += FinanceBook[i].money;
-                        flag = true;
-                    }
+    clearFinanceItem(targetinfo);    //Initialize it
+    targetinfo.type = 1;    //此处是收入
+    system("cls");  //清屏
+    printtitle("查询收入");
+    inputquerycondition(targetinfo);
+
+    bool flag = false;
+    double sumincome = 0;
+    vector<FinanceItem>queryresult;
+
+    issortincome = true;issortrecent = true;issortnamefirst = false;    //排序参数
+    sort(FinanceBook.begin(), FinanceBook.end(), cmp);  //结构体排序
+    
+    for (int i = 0; i < FinanceBook.size(); ++i) {
+        if (FinanceBook[i].type != targetinfo.type)break;
+        if (targetinfo.year ==-1 || FinanceBook[i].year == targetinfo.year) {
+            if (targetinfo.month == -1 || FinanceBook[i].month == targetinfo.month) {
+                if (targetinfo.name =="*"||FinanceBook[i].name == targetinfo.name) {
+                    queryresult.push_back(FinanceBook[i]);
+                    sumincome += FinanceBook[i].money;
+                    flag = true;
                 }
-                else if (flag)break;
-            }else if (flag)break;
-            
-        }
-        cout<<endl<< "----[查询结果]----" << endl;
-        if (queryresult.size() == 0) {
-            cout<<endl<< "无结果" << endl << endl;
-        }
-        else {
-            cout << "姓名:" << targetinfo.name << endl
-                << "时间:" << targetinfo.year << "/" << targetinfo.month << endl<<endl
-                << "------------------" << endl;
-            for (int i = 0; i < queryresult.size(); i++) {
-                cout << "收入:" << fixed << setprecision(2) << queryresult[i].money << "元" << endl
-                    << "备注:" << queryresult[i].detail << endl << "------------------" << endl;
             }
+            else if ((targetinfo.year != -1 && targetinfo.month != -1)&&flag)break;    //精确查询状态程序优化
+        }else if ((targetinfo.year != -1 && targetinfo.month != -1) && flag)break;   //精确查询状态程序优化
+    }
+    cout<<endl<< "----[查询结果]----" ;
+    if (queryresult.size() == 0) {
+        cout << endl <<endl<< "无结果" << endl << endl;
+    }
+    else {
+        issortnamefirst = true;
+        sort(queryresult.begin(), queryresult.end(), cmp);
+        
+        string currentname = ""; int currentyear = 0; int currentmonth = 0;
+        for (int i = 0; i < queryresult.size(); i++)
+        {
+            if (currentname != queryresult[i].name) {
+                cout <<endl << endl << "姓名:" << queryresult[i].name << endl;
+                currentname = queryresult[i].name;
+                currentyear = 0; currentmonth = 0;
+            }
+            if (currentyear != queryresult[i].year || currentmonth != queryresult[i].month) {
+                currentyear= queryresult[i].year;
+                currentmonth = queryresult[i].month;
+                cout <<endl<< "时间:" << queryresult[i].year << "/" << queryresult[i].month <<endl
+                    << "------------------" << endl;
+            }
+            cout << "收入:" << fixed << setprecision(2) << queryresult[i].money << "元" << endl
+                << "备注:" << queryresult[i].detail << endl << "------------------" << endl;
         }
-        if(sumincome!=0)cout << endl << "共计:" << sumincome << "元" << endl;
-        cout<< "------------------" << endl;
+        
+        
+        
+    }
+    if(sumincome!=0)cout << endl << "共计:" << sumincome << "元" << endl;
+    if (queryresult.size() != 0)cout << queryresult.size() << "条记录" << endl;
+    cout<< "------------------" << endl;
     system("pause");
     selectmenu();
 }
 
 void inputquerycondition(FinanceItem& financeinfo) {
-    cout << "请输入家庭成员姓名:";
+    cout << "请输入家庭成员姓名(输入*代表查询全部):";
     while (1) {
-        while (getline(cin, financeinfo.name))
-        {
-            if (financeinfo.name != "") {
-                cin.clear(); break;
-            }
+        getline(cin, financeinfo.name);
+        
+        if (isNameLegal(financeinfo.name,true)) {
+                cin.clear();
+                break;
         }
-        if (cin.good()) break;
-        else {
-            cin.clear();
-            cin.ignore(1000, '\n');
+        else if(financeinfo.name!=""){
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "姓名不合法!请重新输入:";
         }
+        
     }
-    cout << endl << "请输入年份(yyyy):";
+    cout << endl << "请输入年份(输入-1代表查询全部):";
     while (1) {
         cin >> financeinfo.year;
-        if (cin.good() && financeinfo.year > 1800) break;
+        if (cin.good() && (financeinfo.year > 1800||financeinfo.year==-1)) break;
         else {
             cin.clear();
             cin.ignore(1000, '\n');
@@ -478,10 +522,10 @@ void inputquerycondition(FinanceItem& financeinfo) {
     }
     cin.clear();
     cin.ignore(1000, '\n');
-    cout << endl << "请输入月份(m):";
+    cout << endl << "请输入月份(输入-1代表查询全部):";
     while (1) {
         cin >> financeinfo.month;
-        if (cin.good() && financeinfo.month <= 12 && financeinfo.month >= 1) break;
+        if (cin.good() && (financeinfo.month <= 12 && financeinfo.month >= 1||financeinfo.month==-1)) break;
         else {
             cin.clear();
             cin.ignore(1000, '\n');
@@ -490,6 +534,14 @@ void inputquerycondition(FinanceItem& financeinfo) {
     }
     cin.clear();
     cin.ignore(1000, '\n');
+}
+
+bool isNameLegal(string name,bool isallowstarmark) {
+    if (name == "")return false;
+    string tmpstr=string(name.size(),' ');
+    if (tmpstr == name)return false;    //不能全为空格
+    if (name == "*"&&(!isallowstarmark))return false;   //不能为*
+    return true;
 }
 
 void queryexpense() {

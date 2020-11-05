@@ -29,31 +29,22 @@ using namespace std;
 #define DATA_FILE "fs.dat"  //数据库文件
 
 //定义结构体
-typedef struct _fi_info //收支项
-{
-    int year;
-    int month;
-    int type;       //1为收入，-1为支出
-    string name;    //家庭成员姓名，属于TA的收入或由TA支出
-    float money;    //收入或支出的金额
-    string detail;  //备注信息
-}fi_info;
-
 struct FinanceItem
 {
     int year=0;
     int month=0;
     int type=1;       //1为收入，-1为支出
     string name="";    //家庭成员姓名，属于TA的收入或由TA支出
-    float money=0;    //收入或支出的金额
+    double money=0;    //收入或支出的金额
     string detail="";  //备注信息
 };
 
 //以下为全局变量定义
 bool isinit=false;	//程序是否已经初始化标识符
 vector<FinanceItem> FinanceBook;
-bool issortincome=true;
-bool issortrecent=true;
+bool issortincome=true; //是否先排收入
+bool issortrecent=true; //是否先排最近的年月份
+bool issortnamefirst = false;   //是否先排序名字
 
 
 //以下声明函数
@@ -68,9 +59,9 @@ void exitprogram();	//退出程序
 
 void clearFinanceItem(FinanceItem& item); //清空收支项
 
-bool cmp(FinanceItem a, FinanceItem b);
+bool cmp(FinanceItem a, FinanceItem b); //结构体排序函数
 
-
+bool isNameLegal(string name,bool isallowstarmark=false);   //判断名字是否合法
 void addincome();	//增加收入
 void inputinfo(FinanceItem& financeinfo);  //用户交互输入收支项目函数
 void inputquerycondition(FinanceItem& financeinfo);
