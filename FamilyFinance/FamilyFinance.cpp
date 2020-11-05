@@ -545,6 +545,70 @@ bool isNameLegal(string name,bool isallowstarmark) {
 }
 
 void queryexpense() {
+    FinanceItem targetinfo;
+    string confirmation = "";
+
+    clearFinanceItem(targetinfo);    //Initialize it
+    targetinfo.type = -1;    //此处是支出
+    system("cls");  //清屏
+    printtitle("查询支出");
+    inputquerycondition(targetinfo);
+
+    bool flag = false;
+    double sumincome = 0;
+    vector<FinanceItem>queryresult;
+
+    issortincome = false; issortrecent = true; issortnamefirst = false;    //排序参数
+    sort(FinanceBook.begin(), FinanceBook.end(), cmp);  //结构体排序
+
+    for (int i = 0; i < FinanceBook.size(); ++i) {
+        if (FinanceBook[i].type != targetinfo.type)break;
+        if (targetinfo.year == -1 || FinanceBook[i].year == targetinfo.year) {
+            if (targetinfo.month == -1 || FinanceBook[i].month == targetinfo.month) {
+                if (targetinfo.name == "*" || FinanceBook[i].name == targetinfo.name) {
+                    queryresult.push_back(FinanceBook[i]);
+                    sumincome += FinanceBook[i].money;
+                    flag = true;
+                }
+            }
+            else if ((targetinfo.year != -1 && targetinfo.month != -1) && flag)break;    //精确查询状态程序优化
+        }
+        else if ((targetinfo.year != -1 && targetinfo.month != -1) && flag)break;   //精确查询状态程序优化
+    }
+    cout << endl << "----[查询结果]----";
+    if (queryresult.size() == 0) {
+        cout << endl << endl << "无结果" << endl << endl;
+    }
+    else {
+        issortnamefirst = true;
+        sort(queryresult.begin(), queryresult.end(), cmp);
+
+        string currentname = ""; int currentyear = 0; int currentmonth = 0;
+        for (int i = 0; i < queryresult.size(); i++)
+        {
+            if (currentname != queryresult[i].name) {
+                cout << endl << endl << "姓名:" << queryresult[i].name << endl;
+                currentname = queryresult[i].name;
+                currentyear = 0; currentmonth = 0;
+            }
+            if (currentyear != queryresult[i].year || currentmonth != queryresult[i].month) {
+                currentyear = queryresult[i].year;
+                currentmonth = queryresult[i].month;
+                cout << endl << "时间:" << queryresult[i].year << "/" << queryresult[i].month << endl
+                    << "------------------" << endl;
+            }
+            cout << "支出:" << fixed << setprecision(2) << queryresult[i].money << "元" << endl
+                << "备注:" << queryresult[i].detail << endl << "------------------" << endl;
+        }
+
+
+
+    }
+    if (sumincome != 0)cout << endl << "共计:" << sumincome << "元" << endl;
+    if (queryresult.size() != 0)cout << queryresult.size() << "条记录" << endl;
+    cout << "------------------" << endl;
+    system("pause");
+    selectmenu();
 
 }
 
