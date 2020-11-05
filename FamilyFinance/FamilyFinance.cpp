@@ -376,7 +376,110 @@ bool cmp(FinanceItem a, FinanceItem b) {
 }
 
 void editincome() {
+    FinanceItem targetinfo;
+    string confirmation = "";
 
+    clearFinanceItem(targetinfo);    //Initialize it
+    targetinfo.type = 1;    //此处是收入
+    system("cls");  //清屏
+    printtitle("编辑收入");
+    inputquerycondition(targetinfo);
+
+    bool flag = false;
+    double sumincome = 0;
+    vector<FinanceItem>queryresult;
+
+    issortincome = true; issortrecent = true; issortnamefirst = false;    //排序参数
+    sort(FinanceBook.begin(), FinanceBook.end(), cmp);  //结构体排序
+
+    for (int i = 0; i < FinanceBook.size(); ++i) {
+        if (FinanceBook[i].type != targetinfo.type)break;
+        if (targetinfo.year == -1 || FinanceBook[i].year == targetinfo.year) {
+            if (targetinfo.month == -1 || FinanceBook[i].month == targetinfo.month) {
+                if (targetinfo.name == "*" || FinanceBook[i].name == targetinfo.name) {
+                    queryresult.push_back(FinanceBook[i]);
+                    sumincome += FinanceBook[i].money;
+                    FinanceBook.erase(FinanceBook.begin() + i);
+                    i--;
+                    flag = true;
+                }
+            }
+            else if ((targetinfo.year != -1 && targetinfo.month != -1) && flag)break;    //精确查询状态程序优化
+        }
+        else if ((targetinfo.year != -1 && targetinfo.month != -1) && flag)break;   //精确查询状态程序优化
+    }
+    cout << endl << "----[查询结果]----";
+    if (queryresult.size() == 0) {
+        cout << endl << endl << "无结果" << endl << endl;
+    }
+    else {
+        issortnamefirst = true;
+        sort(queryresult.begin(), queryresult.end(), cmp);
+
+        string currentname = ""; int currentyear = 0; int currentmonth = 0;
+        for (int i = 0; i < queryresult.size(); i++)
+        {
+
+            if (currentname != queryresult[i].name) {
+                cout << endl << endl << "姓名:" << queryresult[i].name << endl;
+                currentname = queryresult[i].name;
+                currentyear = 0; currentmonth = 0;
+            }
+            if (currentyear != queryresult[i].year || currentmonth != queryresult[i].month) {
+                currentyear = queryresult[i].year;
+                currentmonth = queryresult[i].month;
+                cout << endl << "时间:" << queryresult[i].year << "/" << queryresult[i].month << endl
+                    << "------------------" << endl;
+            }
+            cout << "No." << i + 1 << endl;
+            cout << "收入:" << fixed << setprecision(2) << queryresult[i].money << "元" << endl
+                << "备注:" << queryresult[i].detail << endl << "------------------" << endl;
+        }
+
+
+
+    }
+    /*if (sumincome != 0)cout << endl << "共计:" << sumincome << "元" << endl;
+    if (queryresult.size() != 0)cout << queryresult.size() << "条记录" << endl;*/
+    cout << "------------------" << endl;
+    int selection;
+    if (queryresult.size() == 0)
+    {
+        cout << "啥都没有，改什么！！？" << endl;
+
+    }
+    else {
+        while (true)
+        {
+
+            cout << "请选择编号 [1-" << queryresult.size() << "]:";
+            selection = 0;
+            cin >> selection;
+            if (cin.fail() || selection<1 || selection > queryresult.size())
+            {
+                cout << "输入错误！" << endl;
+                system("pause");    //让用户按任意键继续
+                cin.clear();
+                cin.ignore(1000, '\n');
+                //防止cin一直为错误状态
+
+                continue;
+            }
+            else
+            {
+                inputinfo(queryresult[selection - 1]);
+                for (int i = 0; i < queryresult.size(); i++) {
+                    FinanceBook.push_back(queryresult[i]);
+
+                }
+                cout << "真的修改成功了！！！" << endl;
+                break;
+            }
+
+        }
+    }
+    system("pause");
+    selectmenu();
 }
 void delincome() {
     FinanceItem targetinfo;
@@ -446,33 +549,40 @@ void delincome() {
     if (queryresult.size() != 0)cout << queryresult.size() << "条记录" << endl;*/
     cout << "------------------" << endl;
     int selection;
-    while (true)
+    if (queryresult.size()==0)
     {
-        
-        cout << "请选择编号 [1-" << queryresult.size() << "]:";
-        selection = 0;
-        cin >> selection;
-        if (cin.fail() || selection<1 || selection > queryresult.size())
-        {
-            cout << "输入错误！" << endl;
-            system("pause");    //让用户按任意键继续
-            cin.clear();
-            cin.ignore(1000, '\n');
-            //防止cin一直为错误状态
+        cout << "啥都没有，删什么！！？" << endl;
 
-            continue;
-        }
-        else
+    }
+    else {
+        while (true)
         {
-            queryresult.erase(queryresult.begin() + selection - 1);
-            for (int i = 0; i < queryresult.size(); i++) {
-                FinanceBook.push_back(queryresult[i]);
-                
+
+            cout << "请选择编号 [1-" << queryresult.size() << "]:";
+            selection = 0;
+            cin >> selection;
+            if (cin.fail() || selection<1 || selection > queryresult.size())
+            {
+                cout << "输入错误！" << endl;
+                system("pause");    //让用户按任意键继续
+                cin.clear();
+                cin.ignore(1000, '\n');
+                //防止cin一直为错误状态
+
+                continue;
             }
-            cout << "真的删除成功了！！！" << endl;
-            break;
-        }
+            else
+            {
+                queryresult.erase(queryresult.begin() + selection - 1);
+                for (int i = 0; i < queryresult.size(); i++) {
+                    FinanceBook.push_back(queryresult[i]);
 
+                }
+                cout << "真的删除成功了！！！" << endl;
+                break;
+            }
+
+        }
     }
     system("pause");
     selectmenu();
@@ -507,7 +617,110 @@ void addexpense() {
     selectmenu();
 }
 void editexpense() {
-    
+    FinanceItem targetinfo;
+    string confirmation = "";
+
+    clearFinanceItem(targetinfo);    //Initialize it
+    targetinfo.type = -1;    //此处是支出
+    system("cls");  //清屏
+    printtitle("编辑支出");
+    inputquerycondition(targetinfo);
+
+    bool flag = false;
+    double sumincome = 0;
+    vector<FinanceItem>queryresult;
+
+    issortincome = false; issortrecent = true; issortnamefirst = false;    //排序参数
+    sort(FinanceBook.begin(), FinanceBook.end(), cmp);  //结构体排序
+
+    for (int i = 0; i < FinanceBook.size(); ++i) {
+        if (FinanceBook[i].type != targetinfo.type)break;
+        if (targetinfo.year == -1 || FinanceBook[i].year == targetinfo.year) {
+            if (targetinfo.month == -1 || FinanceBook[i].month == targetinfo.month) {
+                if (targetinfo.name == "*" || FinanceBook[i].name == targetinfo.name) {
+                    queryresult.push_back(FinanceBook[i]);
+                    sumincome += FinanceBook[i].money;
+                    FinanceBook.erase(FinanceBook.begin() + i);
+                    i--;
+                    flag = true;
+                }
+            }
+            else if ((targetinfo.year != -1 && targetinfo.month != -1) && flag)break;    //精确查询状态程序优化
+        }
+        else if ((targetinfo.year != -1 && targetinfo.month != -1) && flag)break;   //精确查询状态程序优化
+    }
+    cout << endl << "----[查询结果]----";
+    if (queryresult.size() == 0) {
+        cout << endl << endl << "无结果" << endl << endl;
+    }
+    else {
+        issortnamefirst = true;
+        sort(queryresult.begin(), queryresult.end(), cmp);
+
+        string currentname = ""; int currentyear = 0; int currentmonth = 0;
+        for (int i = 0; i < queryresult.size(); i++)
+        {
+
+            if (currentname != queryresult[i].name) {
+                cout << endl << endl << "姓名:" << queryresult[i].name << endl;
+                currentname = queryresult[i].name;
+                currentyear = 0; currentmonth = 0;
+            }
+            if (currentyear != queryresult[i].year || currentmonth != queryresult[i].month) {
+                currentyear = queryresult[i].year;
+                currentmonth = queryresult[i].month;
+                cout << endl << "时间:" << queryresult[i].year << "/" << queryresult[i].month << endl
+                    << "------------------" << endl;
+            }
+            cout << "No." << i + 1 << endl;
+            cout << "支出:" << fixed << setprecision(2) << queryresult[i].money << "元" << endl
+                << "备注:" << queryresult[i].detail << endl << "------------------" << endl;
+        }
+
+
+
+    }
+    /*if (sumincome != 0)cout << endl << "共计:" << sumincome << "元" << endl;
+    if (queryresult.size() != 0)cout << queryresult.size() << "条记录" << endl;*/
+    cout << "------------------" << endl;
+    int selection;
+    if (queryresult.size() == 0)
+    {
+        cout << "啥都没有，改什么！！？" << endl;
+
+    }
+    else {
+        while (true)
+        {
+
+            cout << "请选择编号 [1-" << queryresult.size() << "]:";
+            selection = 0;
+            cin >> selection;
+            if (cin.fail() || selection<1 || selection > queryresult.size())
+            {
+                cout << "输入错误！" << endl;
+                system("pause");    //让用户按任意键继续
+                cin.clear();
+                cin.ignore(1000, '\n');
+                //防止cin一直为错误状态
+
+                continue;
+            }
+            else
+            {
+                inputinfo(queryresult[selection - 1]);
+                for (int i = 0; i < queryresult.size(); i++) {
+                    FinanceBook.push_back(queryresult[i]);
+
+                }
+                cout << "真的修改成功了！！！" << endl;
+                break;
+            }
+
+        }
+    }
+    system("pause");
+    selectmenu();
 }
 void delexpense() {
     FinanceItem targetinfo;
@@ -577,33 +790,40 @@ void delexpense() {
     if (queryresult.size() != 0)cout << queryresult.size() << "条记录" << endl;*/
     cout << "------------------" << endl;
     int selection;
-    while (true)
+    if (queryresult.size() == 0)
     {
+        cout << "啥都没有，删什么！！？" << endl;
 
-        cout << "请选择编号 [1-" << queryresult.size() << "]:";
-        selection = 0;
-        cin >> selection;
-        if (cin.fail() || selection<1 || selection > queryresult.size())
+    }
+    else {
+        while (true)
         {
-            cout << "输入错误！" << endl;
-            system("pause");    //让用户按任意键继续
-            cin.clear();
-            cin.ignore(1000, '\n');
-            //防止cin一直为错误状态
 
-            continue;
-        }
-        else
-        {
-            queryresult.erase(queryresult.begin() + selection - 1);
-            for (int i = 0; i < queryresult.size(); i++) {
-                FinanceBook.push_back(queryresult[i]);
+            cout << "请选择编号 [1-" << queryresult.size() << "]:";
+            selection = 0;
+            cin >> selection;
+            if (cin.fail() || selection<1 || selection > queryresult.size())
+            {
+                cout << "输入错误！" << endl;
+                system("pause");    //让用户按任意键继续
+                cin.clear();
+                cin.ignore(1000, '\n');
+                //防止cin一直为错误状态
 
+                continue;
             }
-            cout << "真的删除成功了！！！" << endl;
-            break;
-        }
+            else
+            {
+                queryresult.erase(queryresult.begin() + selection - 1);
+                for (int i = 0; i < queryresult.size(); i++) {
+                    FinanceBook.push_back(queryresult[i]);
 
+                }
+                cout << "真的删除成功了！！！" << endl;
+                break;
+            }
+
+        }
     }
     system("pause");
     selectmenu();
