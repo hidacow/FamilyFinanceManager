@@ -19,12 +19,12 @@
 #include<fstream>
 #include<assert.h>
 #include<algorithm>
-
+#include<sstream>
 
 using namespace std;
 
 //以下为类型、常量定义
-//所有常量请大写加下划线！
+//所有常量请大写加下划线!
 #define MAIN_MENU_COUNT 13	//主菜单项数
 #define DATA_FILE "fs.dat"  //数据库文件
 
@@ -45,10 +45,12 @@ vector<FinanceItem> FinanceBook;
 bool issortincome=true; //是否先排收入
 bool issortrecent=true; //是否先排最近的年月份
 bool issortnamefirst = false;   //是否先排序名字
+int sysyear;
+int sysmonth;
 
 
 //以下声明函数
-//!!请不要在此定义函数以免造成麻烦,但是要在这里声明！
+//!!请不要在此定义函数以免造成麻烦,但是要在这里声明!
 
 
 void initprogram();	//初始化程序

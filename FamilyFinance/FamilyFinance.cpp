@@ -22,6 +22,12 @@ int main()
 }
 
 void initprogram() {	
+    struct tm t;   //tm结构指针
+    time_t now;  //声明time_t类型变量
+    time(&now);      //获取系统日期和时间
+    localtime_s(&t, &now);
+    sysyear = 1900+t.tm_year;
+    sysmonth = 1+t.tm_mon;
     getfromfile();
 }
 
@@ -68,7 +74,7 @@ void selectmenu() {
         cin >> selection;
         if (cin.fail() || selection<1 || selection > MAIN_MENU_COUNT)
         {
-            cout << "输入错误！" << endl;
+            cout << "输入错误!" << endl;
             system("pause");    //让用户按任意键继续
             cin.clear();
             cin.ignore(1000, '\n');
@@ -134,7 +140,7 @@ void gotomenu(int menuno) {
 void exitprogram() {
     
     string confirmation;
-    cout << "你真的要退出吗？(输入y以退出)";
+    cout << "你真的要退出吗?(输入y以退出)";
     cin >> confirmation;
     if (confirmation == "y"|| confirmation == "Y") {
         //添加文件保存等函数
@@ -162,6 +168,8 @@ void addincome() {
     {
         clearFinanceItem(fiinfo);    //Initialize it
         fiinfo.type = 1;    //此处是收入
+        fiinfo.year = sysyear;
+        fiinfo.month = sysmonth;
         system("cls");  //清屏
         printtitle("添加收入");
         inputinfo(fiinfo);
@@ -170,7 +178,7 @@ void addincome() {
             << "时间:" << fiinfo.year << "/" << fiinfo.month << endl
             << "收入:" << fixed << setprecision(2) << fiinfo.money << "元" << endl
             << "备注:" << fiinfo.detail << endl << "----------------" << endl;
-        cout << "确定添加？(输入y继续,输入c取消,输入其它重输)";
+        cout << "确定添加?(输入y继续,输入c取消,输入其它重输)";
         cin >> confirmation;
         if (confirmation == "c") {
             selectmenu();
@@ -179,70 +187,109 @@ void addincome() {
     } while (confirmation != "y" && confirmation != "Y");
     FinanceBook.push_back(fiinfo);
     savetofile();
-    cout << "添加成功！" << endl;
+    cout << "添加成功!" << endl;
     system("pause");
     selectmenu();
 }
 
 void inputinfo(FinanceItem& financeinfo) {
-    cout << "请输入家庭成员姓名:";
+    string tmp="";
+    if (financeinfo.name != "")tmp = "(默认:"+financeinfo.name+")";
+    cout << "请输入姓名"<<tmp<<":";
+    getline(cin, tmp);
     while (1) {
+        auto oval = financeinfo.name;
         getline(cin, financeinfo.name);
-
+        if (financeinfo.name == "")financeinfo.name = oval;
         if (isNameLegal(financeinfo.name)) {
             cin.clear();
             break;
         }
         else if (financeinfo.name != "") {
-            cin.clear();
-            cin.ignore(1000, '\n');
+            /*cin.clear();
+            cin.ignore(1000, '\n');*/
             cout << "姓名不合法!请重新输入:";
         }
 
     }
-    cout << endl << "请输入年份(yyyy):";
+    tmp = "";
+    if (financeinfo.year != 0)tmp = "(默认:" + to_string(financeinfo.year) + ")";
+    cout << endl << "请输入年份"<<tmp<<":";
     while (1) {
-        cin >> financeinfo.year;
-        if (cin.good()&& financeinfo.year > 1800) break;
+        auto oval = financeinfo.year;
+        getline(cin, tmp);
+        if (tmp == "") {
+            financeinfo.year = oval;
+        }
+        else
+        {
+            istringstream istr(tmp);
+            istr >> financeinfo.year;
+        }
+        if (financeinfo.year > 1800) break;
         else {
-            cin.clear();
-            cin.ignore(1000, '\n');
+            /*cin.clear();
+            cin.ignore(1000, '\n');*/
             cout << "输入错误!请重新输入:";
         }
     }
-    cin.clear();
-    cin.ignore(1000, '\n');
-    cout<<endl<< "请输入月份(m):";
+    tmp = "";
+    if (financeinfo.month != 0)tmp = "(默认:" + to_string(financeinfo.month) + ")";
+    cout << endl << "请输入月份" << tmp << ":";
     while (1) {
-        cin >> financeinfo.month;
-        if (cin.good()&& financeinfo.month <= 12 && financeinfo.month >= 1) break;
+        auto oval = financeinfo.month;
+        getline(cin, tmp);
+        if (tmp == "") {
+            financeinfo.month = oval;
+        }
+        else
+        {
+            istringstream istr(tmp);
+            istr >> financeinfo.month;
+        }
+        if (financeinfo.month > 0&&financeinfo.month<13) break;
         else {
-            cin.clear();
-            cin.ignore(1000, '\n');
+            /*cin.clear();
+            cin.ignore(1000, '\n');*/
             cout << "输入错误!请重新输入:";
         }
     }
-    cin.clear();
-    cin.ignore(1000, '\n');
-    cout << endl << "请输入金额:";
+    tmp = "";
+    if (financeinfo.money != 0)cout << endl << "请输入金额(默认:" << fixed<<setprecision(2)<< financeinfo.money << "):"; 
+    else cout << endl << "请输入金额:";
     while (1) {
-        cin >> financeinfo.money;
-        if (cin.good()&& financeinfo.money > 0) break;
+        auto oval = financeinfo.money;
+        getline(cin, tmp);
+        if (tmp == "") {
+            if (oval != 0)financeinfo.money = oval;
+            else financeinfo.money = -1;
+        }
+        else
+        {
+            istringstream istr(tmp);
+            istr >> financeinfo.money;
+        }
+        if (financeinfo.money > 0) break;
         else {
-            cin.clear();
-            cin.ignore(1000, '\n');
+            /*cin.clear();
+            cin.ignore(1000, '\n');*/
             cout << "输入错误!请重新输入:";
         }
     }
-    cin.clear();
-    cin.ignore(1000, '\n');
-    cout << endl << "请输入备注:";
-    while (getline(cin,financeinfo.detail))
-    {
-        //if (financeinfo.detail != "") {
-            cin.clear(); break;
-        //}
+    tmp = "";
+    if (financeinfo.detail != "")tmp = "(默认:" + financeinfo.detail + ")";
+    cout <<endl<< "请输入备注" << tmp << ":";
+    //getline(cin, tmp);
+    while (1) {
+        auto oval = financeinfo.detail;
+        getline(cin, financeinfo.detail);
+        
+        if (financeinfo.detail == "" && oval != "")financeinfo.detail = oval;
+        else if(financeinfo.detail=="")financeinfo.detail = " ";
+        break;
+
     }
+    
 }
 
 unsigned char ToHex(unsigned char x)
@@ -322,7 +369,7 @@ void getfromfile() {
     FinanceBook.clear();
     int cnt=0;
     input >> cnt;
-    if (cnt == 0) { cout << "无数据文件或文件损坏！" << endl; input.close(); return; }
+    if (cnt == 0) { cout << "无数据文件或文件损坏!" << endl; input.close(); return; }
     FinanceItem a;
     for (int i = 0; i < cnt; i++) {
         input >> a.type >> a.name >> a.year >> a.month >> a.money >> a.detail;
@@ -439,22 +486,28 @@ void editincome() {
 
 
     }
-    /*if (sumincome != 0)cout << endl << "共计:" << sumincome << "元" << endl;
-    if (queryresult.size() != 0)cout << queryresult.size() << "条记录" << endl;*/
+    
     cout << "------------------" << endl;
     int selection;
     if (queryresult.size() == 0)
     {
-        cout << "啥都没有，改什么！！？" << endl;
-
+        cout << "没有找到可供编辑的记录" << endl;
+        
     }
     else {
         while (true)
         {
 
-            cout << "请选择编号 [1-" << queryresult.size() << "]:";
+            cout << "请选择编号 [1-" << queryresult.size() << "]，输入-1取消:";
             selection = 0;
             cin >> selection;
+            if (selection == -1) {
+                for (int i = 0; i < queryresult.size(); i++) {
+                    FinanceBook.push_back(queryresult[i]);
+                }
+                cout << "取消了操作"<<endl;
+                break;
+            }
             if (cin.fail() || selection<1 || selection > queryresult.size())
             {
                 cout << "输入错误！" << endl;
@@ -467,12 +520,35 @@ void editincome() {
             }
             else
             {
-                inputinfo(queryresult[selection - 1]);
+                FinanceItem fiinfo;
+                string confirmation = "";
+                do
+                {
+                    fiinfo = queryresult[selection - 1];
+
+                    inputinfo(fiinfo);
+                    cout << endl << "请确认:" << endl << "----------------" << endl;
+                    cout << "姓名:" << fiinfo.name << endl
+                        << "时间:" << fiinfo.year << "/" << fiinfo.month << endl
+                        << "收入:" << fixed << setprecision(2) << fiinfo.money << "元" << endl
+                        << "备注:" << fiinfo.detail << endl << "----------------" << endl;
+                    cout << "确定修改?(输入y继续,输入c取消,输入其它重输)";
+                    cin >> confirmation;
+                    if (confirmation == "c") {
+                        for (int i = 0; i < queryresult.size(); i++) {
+                            FinanceBook.push_back(queryresult[i]);
+                        }
+                        cout << "取消了操作" << endl;
+                        break;
+                    }
+                } while (confirmation != "y" && confirmation != "Y");
+                queryresult[selection - 1] = fiinfo;
+                
                 for (int i = 0; i < queryresult.size(); i++) {
                     FinanceBook.push_back(queryresult[i]);
 
                 }
-                cout << "真的修改成功了！！！" << endl;
+                cout << "修改成功" << endl;
                 break;
             }
 
@@ -551,19 +627,26 @@ void delincome() {
     int selection;
     if (queryresult.size()==0)
     {
-        cout << "啥都没有，删什么！！？" << endl;
+        cout << "没有找到可供删除的记录" << endl;
 
     }
     else {
         while (true)
         {
 
-            cout << "请选择编号 [1-" << queryresult.size() << "]:";
+            cout << "请选择编号 [1-" << queryresult.size() << "]，输入-1取消:";
             selection = 0;
             cin >> selection;
+            if (selection == -1) {
+                for (int i = 0; i < queryresult.size(); i++) {
+                    FinanceBook.push_back(queryresult[i]);
+                }
+                cout << "取消了操作" << endl;
+                break;
+            }
             if (cin.fail() || selection<1 || selection > queryresult.size())
             {
-                cout << "输入错误！" << endl;
+                cout << "输入错误!" << endl;
                 system("pause");    //让用户按任意键继续
                 cin.clear();
                 cin.ignore(1000, '\n');
@@ -578,7 +661,7 @@ void delincome() {
                     FinanceBook.push_back(queryresult[i]);
 
                 }
-                cout << "真的删除成功了！！！" << endl;
+                cout << "删除成功" << endl;
                 break;
             }
 
@@ -595,6 +678,8 @@ void addexpense() {
     {
         clearFinanceItem(fiinfo);    //Initialize it
         fiinfo.type = -1;    //此处是支出
+        fiinfo.year = sysyear;
+        fiinfo.month = sysmonth;
         system("cls");  //清屏
         printtitle("添加支出");
         inputinfo(fiinfo);
@@ -603,7 +688,7 @@ void addexpense() {
             << "时间:" << fiinfo.year << "/" << fiinfo.month << endl
             << "支出:" << fixed << setprecision(2) << fiinfo.money << "元" << endl
             << "备注:" << fiinfo.detail << endl << "----------------" << endl;
-        cout << "确定添加？(输入y继续,输入c取消,输入其它重输)";
+        cout << "确定添加?(输入y继续,输入c取消,输入其它重输)";
         cin >> confirmation;
         if (confirmation == "c") {
             selectmenu();
@@ -612,7 +697,7 @@ void addexpense() {
     } while (confirmation != "y" && confirmation != "Y");
     FinanceBook.push_back(fiinfo);
     savetofile();
-    cout << "添加成功！" << endl;
+    cout << "添加成功!" << endl;
     system("pause");
     selectmenu();
 }
@@ -686,19 +771,26 @@ void editexpense() {
     int selection;
     if (queryresult.size() == 0)
     {
-        cout << "啥都没有，改什么！！？" << endl;
+        cout << "没有找到可供编辑的记录" << endl;
 
     }
     else {
         while (true)
         {
 
-            cout << "请选择编号 [1-" << queryresult.size() << "]:";
+            cout << "请选择编号 [1-" << queryresult.size() << "]，输入-1取消:";
             selection = 0;
             cin >> selection;
+            if (selection == -1) {
+                for (int i = 0; i < queryresult.size(); i++) {
+                    FinanceBook.push_back(queryresult[i]);
+                }
+                cout << "取消了操作"<<endl;
+                break;
+            }
             if (cin.fail() || selection<1 || selection > queryresult.size())
             {
-                cout << "输入错误！" << endl;
+                cout << "输入错误!" << endl;
                 system("pause");    //让用户按任意键继续
                 cin.clear();
                 cin.ignore(1000, '\n');
@@ -708,12 +800,34 @@ void editexpense() {
             }
             else
             {
-                inputinfo(queryresult[selection - 1]);
+                FinanceItem fiinfo;
+                string confirmation = "";
+                do
+                {
+                    fiinfo = queryresult[selection - 1];
+
+                    inputinfo(fiinfo);
+                    cout << endl << "请确认:" << endl << "----------------" << endl;
+                    cout << "姓名:" << fiinfo.name << endl
+                        << "时间:" << fiinfo.year << "/" << fiinfo.month << endl
+                        << "收入:" << fixed << setprecision(2) << fiinfo.money << "元" << endl
+                        << "备注:" << fiinfo.detail << endl << "----------------" << endl;
+                    cout << "确定修改?(输入y继续,输入c取消,输入其它重输)";
+                    cin >> confirmation;
+                    if (confirmation == "c") {
+                        for (int i = 0; i < queryresult.size(); i++) {
+                            FinanceBook.push_back(queryresult[i]);
+                        }
+                        cout << "取消了操作" << endl;
+                        break;
+                    }
+                } while (confirmation != "y" && confirmation != "Y");
+                queryresult[selection - 1] = fiinfo;
+
                 for (int i = 0; i < queryresult.size(); i++) {
                     FinanceBook.push_back(queryresult[i]);
-
                 }
-                cout << "真的修改成功了！！！" << endl;
+                cout << "修改成功" << endl;
                 break;
             }
 
@@ -792,19 +906,26 @@ void delexpense() {
     int selection;
     if (queryresult.size() == 0)
     {
-        cout << "啥都没有，删什么！！？" << endl;
+        cout << "没有找到可供删除的记录" << endl;
 
     }
     else {
         while (true)
         {
 
-            cout << "请选择编号 [1-" << queryresult.size() << "]:";
+            cout << "请选择编号 [1-" << queryresult.size() << "]，输入-1取消:";
             selection = 0;
             cin >> selection;
+            if (selection == -1) {
+                for (int i = 0; i < queryresult.size(); i++) {
+                    FinanceBook.push_back(queryresult[i]);
+                }
+                cout << "取消了操作" << endl;
+                break;
+            }
             if (cin.fail() || selection<1 || selection > queryresult.size())
             {
-                cout << "输入错误！" << endl;
+                cout << "输入错误!" << endl;
                 system("pause");    //让用户按任意键继续
                 cin.clear();
                 cin.ignore(1000, '\n');
@@ -819,7 +940,7 @@ void delexpense() {
                     FinanceBook.push_back(queryresult[i]);
 
                 }
-                cout << "真的删除成功了！！！" << endl;
+                cout << "删除成功" << endl;
                 break;
             }
 
@@ -909,7 +1030,7 @@ void queryincome() {
 }
 
 void inputquerycondition(FinanceItem& financeinfo) {
-    cout << "请输入家庭成员姓名(输入*代表查询全部):";
+    cout << "请输入待查姓名(输入*代表查询全部):";
     while (1) {
         getline(cin, financeinfo.name);
         
@@ -924,7 +1045,7 @@ void inputquerycondition(FinanceItem& financeinfo) {
         }
         
     }
-    cout << endl << "请输入年份(输入-1代表查询全部):";
+    cout << endl << "请输入待查年份(输入-1代表查询全部):";
     while (1) {
         cin >> financeinfo.year;
         if (cin.good() && (financeinfo.year > 1800||financeinfo.year==-1)) break;
@@ -936,7 +1057,7 @@ void inputquerycondition(FinanceItem& financeinfo) {
     }
     cin.clear();
     cin.ignore(1000, '\n');
-    cout << endl << "请输入月份(输入-1代表查询全部):";
+    cout << endl << "请输入待查月份(输入-1代表查询全部):";
     while (1) {
         cin >> financeinfo.month;
         if (cin.good() && (financeinfo.month <= 12 && financeinfo.month >= 1||financeinfo.month==-1)) break;
