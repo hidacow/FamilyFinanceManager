@@ -1,11 +1,4 @@
-﻿// FamilyFinance.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
-//养成写注释和缩进的好习惯，让自己也让别人看得懂
-//注释：在一行后按一次tab打//开始写注释
-/*
-或者也可以这样写
-多行注释
-*/
-
+﻿
 #include "FamilyFinance.h"  //调用头文件
 
 
@@ -35,7 +28,7 @@ void printmenu() {	//打印菜单
     cout << "|================== 家庭财务管理系统 ==================|\n"
         << "|Version: 1.0.0                                        |\n"
         << "|                                                      |\n"
-        << "|Authors: hidacow,Davidguess,Ch-franck,medicalpants    |\n"
+        << "|Authors: hidacow,Davidguess,medicalpants,Ch-franck    |\n"
         << "|                                                      |\n"
         << "|--菜单------------------------------------------------|\n"
         << "|----收入管理------------------------------------------|\n"
@@ -49,15 +42,15 @@ void printmenu() {	//打印菜单
         << "|      7. 删除支出                                     |\n"
         << "|      8. 查询支出                                     |\n"
         << "|----统计----------------------------------------------|\n"
-        << "|      9. 收入排序                                     |\n"
-        << "|     10. 支出排序                                     |\n"
-        << "|     11. 导出报表                                     |\n"
+        << "|      9. 导出报表                                     |\n"
+        << "|----排序设置------------------------------------------|\n"
+        << "|     10. 时间                                         |\n"
+        << "|     11. 数额                                         |\n"
         << "|----其它----------------------------------------------|\n"
-        << "|     12. 设置/修改操作密码                            |\n"
+        << "|     12. 关于程序                                     |\n"
         << "|     13. 退出程序                                     |\n"
         << "|======================================================|\n";
 }
-
 void printtitle(string title) {
     cout << "=================== 家庭财务管理系统 ===================\n"
         << "----[" << title << "]----" << endl;
@@ -91,6 +84,8 @@ void selectmenu() {
 }
 
 void gotomenu(int menuno) {	
+    string c;
+    
     switch (menuno)
     {
     case 1:
@@ -118,16 +113,16 @@ void gotomenu(int menuno) {
         queryexpense();
         break;
     case 9:
-        sortincome();
+        exporttable();
         break;
     case 10:
-        sortexpense();
+        setsortrecent();
         break;
     case 11:
-        delexpense();
+        setsortbiggeramount();
         break;
     case 12:
-        editpassword();
+        showabout();
         break;
     case 13:
         exitprogram();
@@ -136,14 +131,12 @@ void gotomenu(int menuno) {
         break;
     }
 }
-
 void exitprogram() {
     
     string confirmation;
     cout << "你真的要退出吗?(输入y以退出)";
     cin >> confirmation;
     if (confirmation == "y"|| confirmation == "Y") {
-        //添加文件保存等函数
         savetofile();
         exit(0);//退出并返回0
     }
@@ -353,6 +346,10 @@ string UrlDecode(const string& str) //对字符串进行URL解码
 void savetofile() {
     cout << "写入数据文件..." << endl;
     ofstream output(DATA_FILE,ios_base::binary);
+    if (output.fail()) {
+        cout << "打开文件失败！" << endl;
+        return;
+    }
     if (FinanceBook.size() == 0) { cout << "无数据..." << endl; output.close(); return; }
     output << FinanceBook.size();
     for (int i = 0; i < FinanceBook.size(); i++) {
@@ -366,6 +363,10 @@ void savetofile() {
 void getfromfile() {
     cout << "加载数据文件..." << endl;
     ifstream input(DATA_FILE, ios_base::binary);
+    if (input.fail()) {
+        cout << "打开文件失败！" << endl;
+        return;
+    }
     FinanceBook.clear();
     int cnt=0;
     input >> cnt;
@@ -392,7 +393,8 @@ bool cmp(FinanceItem a, FinanceItem b) {
                     if (a.name == b.name) { //判断姓名
                         if (a.money == b.money) {
                             return a.detail < b.detail; //按备注的字母序排序
-                        }else return a.money > b.money; //金额大的在前
+                        }else if(issortbiggeramount)return a.money > b.money; //金额大的在前
+                        else return a.money < b.money;
                     }else return a.name < b.name;   //按名字字母序排序
                 }else if (issortrecent)return a.month > b.month;    //最近的月份在前
                 else return a.month < b.month;
@@ -406,7 +408,8 @@ bool cmp(FinanceItem a, FinanceItem b) {
                         if (a.money == b.money) {
                             return a.detail < b.detail;
                         }
-                        else return a.money > b.money;
+                        else if (issortbiggeramount)return a.money > b.money;
+                        else return a.money < b.money;
                     }
                     else if (issortrecent)return a.month > b.month;
                     else return a.month < b.month;
@@ -436,7 +439,7 @@ void editincome() {
     double sumincome = 0;
     vector<FinanceItem>queryresult;
 
-    issortincome = true; issortrecent = true; issortnamefirst = false;    //排序参数
+    issortincome = true; issortnamefirst = false;  //排序参数
     sort(FinanceBook.begin(), FinanceBook.end(), cmp);  //结构体排序
 
     for (int i = 0; i < FinanceBook.size(); ++i) {
@@ -548,6 +551,7 @@ void editincome() {
                     FinanceBook.push_back(queryresult[i]);
 
                 }
+                savetofile();
                 cout << "修改成功" << endl;
                 break;
             }
@@ -571,7 +575,7 @@ void delincome() {
     double sumincome = 0;
     vector<FinanceItem>queryresult;
 
-    issortincome = true; issortrecent = true; issortnamefirst = false;    //排序参数
+    issortincome = true;  issortnamefirst = false;   //排序参数
     sort(FinanceBook.begin(), FinanceBook.end(), cmp);  //结构体排序
 
     for (int i = 0; i < FinanceBook.size(); ++i) {
@@ -661,6 +665,7 @@ void delincome() {
                     FinanceBook.push_back(queryresult[i]);
 
                 }
+                savetofile();
                 cout << "删除成功" << endl;
                 break;
             }
@@ -715,7 +720,7 @@ void editexpense() {
     double sumincome = 0;
     vector<FinanceItem>queryresult;
 
-    issortincome = false; issortrecent = true; issortnamefirst = false;    //排序参数
+    issortincome = false;  issortnamefirst = false;    //排序参数
     sort(FinanceBook.begin(), FinanceBook.end(), cmp);  //结构体排序
 
     for (int i = 0; i < FinanceBook.size(); ++i) {
@@ -827,6 +832,7 @@ void editexpense() {
                 for (int i = 0; i < queryresult.size(); i++) {
                     FinanceBook.push_back(queryresult[i]);
                 }
+                savetofile();
                 cout << "修改成功" << endl;
                 break;
             }
@@ -850,7 +856,7 @@ void delexpense() {
     double sumincome = 0;
     vector<FinanceItem>queryresult;
 
-    issortincome = false; issortrecent = true; issortnamefirst = false;    //排序参数
+    issortincome = false;  issortnamefirst = false; //排序参数
     sort(FinanceBook.begin(), FinanceBook.end(), cmp);  //结构体排序
 
     for (int i = 0; i < FinanceBook.size(); ++i) {
@@ -940,6 +946,7 @@ void delexpense() {
                     FinanceBook.push_back(queryresult[i]);
 
                 }
+                savetofile();
                 cout << "删除成功" << endl;
                 break;
             }
@@ -950,12 +957,52 @@ void delexpense() {
     selectmenu();
 }
 
-void sortincome() {
-
+void setsortrecent() {
+    system("cls");  //清屏
+    printtitle("排序设置");
+    cout << "设置查询结果中优先展示最近月份的收支" << endl;
+    cout << "当前：";
+    if (issortrecent)cout << "是" << endl;
+    else cout << "否" << endl;
+    cout << "输入y更改为\"是\",输入n更改为\"否\",输入其它取消: ";
+    string selection;
+    cin >> selection;
+    if (selection == "y" || selection == "Y")issortrecent = true;
+    else if (selection == "n" || selection == "N")issortrecent = false;
+    else {
+        cout << "取消了操作" << endl;
+        system("pause");
+        selectmenu();
+        return;
+    }
+    cout << "修改设置成功" << endl;
+    system("pause");
+    selectmenu();
+    return;
 }
 
-void sortexpense() {
-
+void setsortbiggeramount() {
+    system("cls");  //清屏
+    printtitle("排序设置");
+    cout << "设置查询结果中优先展示数额较大的收支" << endl;
+    cout << "当前：";
+    if (issortbiggeramount)cout << "是" << endl;
+    else cout << "否" << endl;
+    cout << "输入y更改为\"是\",输入n更改为\"否\",输入其它取消: ";
+    string selection;
+    cin >> selection;
+    if (selection == "y" || selection == "Y")issortbiggeramount = true;
+    else if (selection == "n" || selection == "N")issortbiggeramount = false;
+    else {
+        cout << "取消了操作" << endl;
+        system("pause");
+        selectmenu();
+        return;
+    }
+    cout << "修改设置成功" << endl;
+    system("pause");
+    selectmenu();
+    return;
 }
 
 
@@ -975,7 +1022,7 @@ void queryincome() {
     double sumincome = 0;
     vector<FinanceItem>queryresult;
 
-    issortincome = true;issortrecent = true;issortnamefirst = false;    //排序参数
+    issortincome = true;issortnamefirst = false;   //排序参数
     sort(FinanceBook.begin(), FinanceBook.end(), cmp);  //结构体排序
     
     for (int i = 0; i < FinanceBook.size(); ++i) {
@@ -1090,10 +1137,10 @@ void queryexpense() {
     inputquerycondition(targetinfo);
 
     bool flag = false;
-    double sumincome = 0;
+    double sumexpense = 0;
     vector<FinanceItem>queryresult;
 
-    issortincome = false; issortrecent = true; issortnamefirst = false;    //排序参数
+    issortincome = false; issortnamefirst = false;   //排序参数
     sort(FinanceBook.begin(), FinanceBook.end(), cmp);  //结构体排序
 
     for (int i = 0; i < FinanceBook.size(); ++i) {
@@ -1102,7 +1149,7 @@ void queryexpense() {
             if (targetinfo.month == -1 || FinanceBook[i].month == targetinfo.month) {
                 if (targetinfo.name == "*" || FinanceBook[i].name == targetinfo.name) {
                     queryresult.push_back(FinanceBook[i]);
-                    sumincome += FinanceBook[i].money;
+                    sumexpense += FinanceBook[i].money;
                     flag = true;
                 }
             }
@@ -1140,7 +1187,7 @@ void queryexpense() {
 
 
     }
-    if (sumincome != 0)cout << endl << "共计:" << sumincome << "元" << endl;
+    if (sumexpense != 0)cout << endl << "共计:" << sumexpense << "元" << endl;
     if (queryresult.size() != 0)cout << queryresult.size() << "条记录" << endl;
     cout << "------------------" << endl;
     system("pause");
@@ -1149,23 +1196,182 @@ void queryexpense() {
 }
 
 void exporttable() {
+    FinanceItem targetinfo;
+    string confirmation = "";
 
+    clearFinanceItem(targetinfo);    //Initialize it
+    targetinfo.type = 1;    //此处是收入
+    system("cls");  //清屏
+    printtitle("打印报表");
+    inputquerycondition(targetinfo);
+
+    bool flag = false;
+    double sumincome = 0;
+    vector<FinanceItem>queryresult;
+
+    issortincome = true;  issortnamefirst = false;    //排序参数
+    sort(FinanceBook.begin(), FinanceBook.end(), cmp);  //结构体排序
+
+    for (int i = 0; i < FinanceBook.size(); ++i) {
+        
+        if (targetinfo.year == -1 || FinanceBook[i].year == targetinfo.year) {
+            if (targetinfo.month == -1 || FinanceBook[i].month == targetinfo.month) {
+                if (targetinfo.name == "*" || FinanceBook[i].name == targetinfo.name) {
+                    queryresult.push_back(FinanceBook[i]);
+                    sumincome += (FinanceBook[i].type * FinanceBook[i].money);
+                    flag = true;
+                }
+            }
+            
+        }
+        
+    }
+    cout << endl << "----[查询结果]----";
+    if (queryresult.size() == 0) {
+        cout << endl << endl << "无结果" << endl << endl;
+    }
+    else {
+        issortnamefirst = true;
+        sort(queryresult.begin(), queryresult.end(), cmp);
+
+        string currentname = ""; int currentyear = 0; int currentmonth = 0;
+        for (int i = 0; i < queryresult.size(); i++)
+        {
+
+            if (currentname != queryresult[i].name) {
+                cout << endl << endl << "姓名:" << queryresult[i].name << endl;
+                currentname = queryresult[i].name;
+                currentyear = 0; currentmonth = 0;
+            }
+            if (currentyear != queryresult[i].year || currentmonth != queryresult[i].month) {
+                currentyear = queryresult[i].year;
+                currentmonth = queryresult[i].month;
+                cout << endl << "时间:" << queryresult[i].year << "/" << queryresult[i].month << endl
+                    << "------------------" << endl;
+            }
+            cout << "No." << i + 1 << endl;
+            if (queryresult[i].type == 1)cout << "收入:";
+            else cout << "支出:";
+            cout<< fixed << setprecision(2) << queryresult[i].money << "元" << endl
+                << "备注:" << queryresult[i].detail << endl << "------------------" << endl;
+        }
+
+
+
+    }
+    if (sumincome != 0)cout << endl << "共计变化:" <<showpos<< sumincome <<noshowpos<< "元" << endl;
+    if (queryresult.size() != 0)cout << queryresult.size() << "条记录" << endl;
+    cout << "------------------" << endl;
+    struct tm t;   //tm结构指针
+    time_t now;  //声明time_t类型变量
+    time(&now);      //获取系统日期和时间
+    localtime_s(&t, &now);
+    exporttofile(queryresult, sumincome,t);
+    system("pause");
+    selectmenu();
 }
 
-void editpassword() {
-
+string gettimestr(tm t,int mode) {
+    string tmpstr = "";
+    if (mode == 0) {
+        tmpstr += to_string(t.tm_year + 1900);
+        tmpstr += "-";
+        tmpstr += to_string(t.tm_mon + 1);
+        tmpstr += "-";
+        tmpstr += to_string(t.tm_mday);
+        tmpstr += " ";
+        tmpstr += to_string(t.tm_hour);
+        tmpstr += "_";
+        if (t.tm_min < 10)tmpstr += "0";
+        tmpstr += to_string(t.tm_min);
+        tmpstr += "_";
+        if (t.tm_sec < 10)tmpstr += "0";
+        tmpstr += to_string(t.tm_sec);
+    }
+    else {
+        tmpstr += to_string(t.tm_year + 1900);
+        tmpstr += "-";
+        tmpstr += to_string(t.tm_mon + 1);
+        tmpstr += "-";
+        tmpstr += to_string(t.tm_mday);
+        tmpstr += " ";
+        tmpstr += to_string(t.tm_hour);
+        tmpstr += ":";
+        if (t.tm_min < 10)tmpstr += "0";
+        tmpstr += to_string(t.tm_min);
+        tmpstr += ":";
+        if (t.tm_sec < 10)tmpstr += "0";
+        tmpstr += to_string(t.tm_sec);
+    }
+    return tmpstr;
 }
 
-bool validatepassword(string pwd) {
-    return true;
-}
-// 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
-// 调试程序: F5 或调试 >“开始调试”菜单
+void exporttofile(vector<FinanceItem> queryresult,double sum,tm t) {
+    cout << "导出中..." << endl;
+    ofstream output("Export_"+ gettimestr(t, 0) +".txt", ios_base::binary);
+    if (output.fail()) {
+        cout << "打开文件失败！" << endl;
+        return;
+    }
+    
+    output << "家庭财务管理系统" << endl << gettimestr(t, 1);
 
-// 入门使用技巧: 
-//   1. 使用解决方案资源管理器窗口添加/管理文件
-//   2. 使用团队资源管理器窗口连接到源代码管理
-//   3. 使用输出窗口查看生成输出和其他消息
-//   4. 使用错误列表窗口查看错误
-//   5. 转到“项目”>“添加新项”以创建新的代码文件，或转到“项目”>“添加现有项”以将现有代码文件添加到项目
-//   6. 将来，若要再次打开此项目，请转到“文件”>“打开”>“项目”并选择 .sln 文件
+
+    output << endl << "----[查询结果]----";
+    if (queryresult.size() == 0) {
+        output << endl << endl << "无结果" << endl << endl;
+    }
+    else {
+        issortnamefirst = true;
+        sort(queryresult.begin(), queryresult.end(), cmp);
+
+        string currentname = ""; int currentyear = 0; int currentmonth = 0;
+        for (int i = 0; i < queryresult.size(); i++)
+        {
+
+            if (currentname != queryresult[i].name) {
+                output << endl << endl << "姓名:" << queryresult[i].name << endl;
+                currentname = queryresult[i].name;
+                currentyear = 0; currentmonth = 0;
+            }
+            if (currentyear != queryresult[i].year || currentmonth != queryresult[i].month) {
+                currentyear = queryresult[i].year;
+                currentmonth = queryresult[i].month;
+                output << endl << "时间:" << queryresult[i].year << "/" << queryresult[i].month << endl
+                    << "------------------" << endl;
+            }
+            output << "No." << i + 1 << endl;
+            if (queryresult[i].type == 1)output << "收入:";
+            else output << "支出:";
+            output << fixed << setprecision(2) << queryresult[i].money << "元" << endl
+                << "备注:" << queryresult[i].detail << endl << "------------------" << endl;
+        }
+
+
+
+    }
+    if (sum != 0)output << endl << "共计变化:" <<showpos<< sum << noshowpos <<"元" << endl;
+    if (queryresult.size() != 0)output << queryresult.size() << "条记录" << endl;
+    output << "------------------" << endl;
+    output.close();
+    cout << "已成功导出到" << "Export_" << gettimestr(t, 0) << ".txt" <<endl;
+}
+
+void showabout() {
+    system("cls");  //清屏
+    printtitle("关于程序");
+    cout << "家庭财务管理系统" << endl
+        << "版本 1.0.0" << endl << endl
+        << "A SHU ALP Course Project" << endl << endl
+        << "Authors" << endl<<endl
+        << "hidacow      黄　浩 20122971 (Leader)" << endl
+        << "Davidguess   黄永橙 20122967 (Member)" << endl
+        << "medicalpants 于俊勇 20122969 (Member)" << endl
+        << "Ch-franck    黄星宇 20122970 (Member)" << endl
+        << endl << endl
+        << "Github:" << endl<<endl
+        << "https://github.com/hidacow/FamilyFinanceManager" << endl<<endl<<endl;
+   system("pause");
+   selectmenu();
+
+}
