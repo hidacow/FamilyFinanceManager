@@ -1,4 +1,4 @@
-﻿
+﻿#define _CRT_SECURE_NO_WARNINGS
 #include "FamilyFinance.h"  //调用头文件
 
 
@@ -14,13 +14,17 @@ int main()
     return 0;
 }
 
-void initprogram() {	
-    struct tm t;   //tm结构指针
-    time_t now;  //声明time_t类型变量
-    time(&now);      //获取系统日期和时间
-    localtime_s(&t, &now);
-    sysyear = 1900+t.tm_year;
-    sysmonth = 1+t.tm_mon;
+void initprogram() {
+    time_t now = time(0);  //声明time_t类型变量
+    struct tm* t = localtime(&now);//获取系统日期和时间
+    sysyear = 1900 + t->tm_year;
+    sysmonth = 1 + t->tm_mon;
+    //struct tm t;   //tm结构指针
+    //time_t now;  //声明time_t类型变量
+    //time(&now);      //获取系统日期和时间
+    //localtime_s(&t, &now);
+    //sysyear = 1900+t.tm_year;
+    //sysmonth = 1+t.tm_mon;
     getfromfile();
 }
 
@@ -1263,11 +1267,16 @@ void exporttable() {
     if (sumincome != 0)cout << endl << "共计变化:" <<showpos<< sumincome <<noshowpos<< "元" << endl;
     if (queryresult.size() != 0)cout << queryresult.size() << "条记录" << endl;
     cout << "------------------" << endl;
-    struct tm t;   //tm结构指针
-    time_t now;  //声明time_t类型变量
-    time(&now);      //获取系统日期和时间
-    localtime_s(&t, &now);
-    exporttofile(queryresult, sumincome,t);
+    time_t now = time(0);  //声明time_t类型变量
+    struct tm* t = localtime(&now);//获取系统日期和时间
+    sysyear = 1900 + t->tm_year;
+    sysmonth = 1 + t->tm_mon;
+    //struct tm t;   //tm结构指针
+    //time_t now;  //声明time_t类型变量
+    //time(&now);      //获取系统日期和时间
+    //localtime_s(&t, &now);
+    /*exporttofile(queryresult, sumincome,t);*/
+    exporttofile(queryresult, sumincome, *t);
     system("pause");
     selectmenu();
 }
