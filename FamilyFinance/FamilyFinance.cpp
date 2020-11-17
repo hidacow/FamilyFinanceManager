@@ -161,8 +161,8 @@ void addincome() {
     {
         clearFinanceItem(fiinfo);    //Initialize it
         fiinfo.type = 1;    //此处是收入
-        fiinfo.year = sysyear;
-        fiinfo.month = sysmonth;
+        fiinfo.year = sysyear;    //初始赋值系统年份
+        fiinfo.month = sysmonth;    //初始赋值系统月份
         system("cls");  //清屏
         printtitle("添加收入");
         inputinfo(fiinfo);
@@ -172,23 +172,23 @@ void addincome() {
             << "收入:" << fixed << setprecision(2) << fiinfo.money << "元" << endl
             << "备注:" << fiinfo.detail << endl << "----------------" << endl;
         cout << "确定添加?(输入y继续,输入c取消,输入其它重输)";
-        cin >> confirmation;
+        cin >> confirmation;    
         if (confirmation == "c") {
             selectmenu();
             return;
         }
-    } while (confirmation != "y" && confirmation != "Y");
+    } while (confirmation != "y" && confirmation != "Y");   //用户确认
     FinanceBook.push_back(fiinfo);
-    savetofile();
+    savetofile();   //写入到文件
     cout << "添加成功!" << endl;
-    system("pause");
-    selectmenu();
+    system("pause");    //输入任意数继续
+    selectmenu();   //选择菜单
 }
 
 void inputinfo(FinanceItem& financeinfo) {
-    string tmp="";
-    if (financeinfo.name != "")tmp = "(默认:"+financeinfo.name+")";
-    cout << "请输入姓名"<<tmp<<":";
+    string tmp="";  //姓名字符串
+    if (financeinfo.name != "")tmp = "(默认:"+financeinfo.name+")";   //不输入时默认姓名
+    cout << "请输入姓名"<<tmp<<":";    
     getline(cin, tmp);
     while (1) {
         auto oval = financeinfo.name;
@@ -204,9 +204,9 @@ void inputinfo(FinanceItem& financeinfo) {
             cout << "姓名不合法!请重新输入:";
         }
 
-    }
-    tmp = "";
-    if (financeinfo.year != 0)tmp = "(默认:" + to_string(financeinfo.year) + ")";
+    }   //重复输入姓名直到姓名合法
+    tmp = "";   //月份字符串
+    if (financeinfo.year != 0)tmp = "(默认:" + to_string(financeinfo.year) + ")";     //不输入时默认年份
     cout << endl << "请输入年份"<<tmp<<":";
     while (1) {
         auto oval = financeinfo.year;
@@ -225,9 +225,9 @@ void inputinfo(FinanceItem& financeinfo) {
             cin.ignore(1000, '\n');*/
             cout << "输入错误!请重新输入:";
         }
-    }
-    tmp = "";
-    if (financeinfo.month != 0)tmp = "(默认:" + to_string(financeinfo.month) + ")";
+    }   //重复输入年份直到年份正确（<=当前年份）
+    tmp = "";   //月份字符串
+    if (financeinfo.month != 0)tmp = "(默认:" + to_string(financeinfo.month) + ")";   //不输入时默认月份
     cout << endl << "请输入月份" << tmp << ":";
     while (1) {
         auto oval = financeinfo.month;
@@ -246,9 +246,9 @@ void inputinfo(FinanceItem& financeinfo) {
             cin.ignore(1000, '\n');*/
             cout << "输入错误!请重新输入:";
         }
-    }
-    tmp = "";
-    if (financeinfo.money != 0)cout << endl << "请输入金额(默认:" << fixed<<setprecision(2)<< financeinfo.money << "):"; 
+    }   //重复输入直到月份正确
+    tmp = "";   //金额字符串
+    if (financeinfo.money != 0)cout << endl << "请输入金额(默认:" << fixed<<setprecision(2)<< financeinfo.money << "):"; //不输入时默认金额
     else cout << endl << "请输入金额:";
     while (1) {
         auto oval = financeinfo.money;
@@ -268,8 +268,8 @@ void inputinfo(FinanceItem& financeinfo) {
             cin.ignore(1000, '\n');*/
             cout << "输入错误!请重新输入:";
         }
-    }
-    tmp = "";
+    }   //重复输入直到金额正确
+    tmp = "";   //备注字符串
     if (financeinfo.detail != "")tmp = "(默认:" + financeinfo.detail + ")";
     cout <<endl<< "请输入备注" << tmp << ":";
     //getline(cin, tmp);
@@ -441,7 +441,7 @@ void editincome() {
 
     issortincome = true; issortnamefirst = false;  //排序参数
     sort(FinanceBook.begin(), FinanceBook.end(), cmp);  //结构体排序
-
+    //以下为筛选
     for (int i = 0; i < FinanceBook.size(); ++i) {
         if (FinanceBook[i].type != targetinfo.type)break;
         if (targetinfo.year == -1 || FinanceBook[i].year == targetinfo.year) {
@@ -577,7 +577,7 @@ void delincome() {
 
     issortincome = true;  issortnamefirst = false;   //排序参数
     sort(FinanceBook.begin(), FinanceBook.end(), cmp);  //结构体排序
-
+    //以下是筛选
     for (int i = 0; i < FinanceBook.size(); ++i) {
         if (FinanceBook[i].type != targetinfo.type)break;
         if (targetinfo.year == -1 || FinanceBook[i].year == targetinfo.year) {
@@ -694,6 +694,7 @@ void addexpense() {
             << "支出:" << fixed << setprecision(2) << fiinfo.money << "元" << endl
             << "备注:" << fiinfo.detail << endl << "----------------" << endl;
         cout << "确定添加?(输入y继续,输入c取消,输入其它重输)";
+        //以下为用户确认
         cin >> confirmation;
         if (confirmation == "c") {
             selectmenu();
@@ -703,8 +704,8 @@ void addexpense() {
     FinanceBook.push_back(fiinfo);
     savetofile();
     cout << "添加成功!" << endl;
-    system("pause");
-    selectmenu();
+    system("pause");    //按任意键回到主菜单
+    selectmenu();   
 }
 void editexpense() {
     FinanceItem targetinfo;
@@ -722,7 +723,7 @@ void editexpense() {
 
     issortincome = false;  issortnamefirst = false;    //排序参数
     sort(FinanceBook.begin(), FinanceBook.end(), cmp);  //结构体排序
-
+    //以下为筛选
     for (int i = 0; i < FinanceBook.size(); ++i) {
         if (FinanceBook[i].type != targetinfo.type)break;
         if (targetinfo.year == -1 || FinanceBook[i].year == targetinfo.year) {
